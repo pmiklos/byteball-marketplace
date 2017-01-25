@@ -1,13 +1,12 @@
 {
-  "name": "chat-example",
+  "name": "byteball-marketplace",
   "version": "0.0.0",
-  "description": "A chat example to showcase how to use `socket.io` with a static `express` server with `async` for control flow.",
-  "main": "server.js",
+  "description": "Marketplace for the Byteball network",
+  "main": "start.js",
   "repository": "",
-  "author": "Mostafa Eweda <mo.eweda@gmail.com>",
+  "author": "Peter Miklos <peter.miklos@gmail.com>",
   "dependencies": {
-    "async": "~0.2.8",
-    "express": "~3.2.4",
-    "socket.io": "~0.9.14"
+    "bitcore-lib": "^0.13.14",
+    "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet"
   }
 }
