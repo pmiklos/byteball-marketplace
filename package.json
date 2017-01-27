@@ -7,6 +7,7 @@
   "author": "Peter Miklos <peter.miklos@gmail.com>",
   "dependencies": {
     "bitcore-lib": "^0.13.14",
-    "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet"
+    "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
+    "mongoose": "4.7.8"
   }
 }

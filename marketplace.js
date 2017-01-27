@@ -9,6 +9,7 @@ var fs = require('fs');
 var db = require('byteballcore/db.js');
 var eventBus = require('byteballcore/event_bus.js');
 var desktopApp = require('byteballcore/desktop_app.js');
+var model = require('./model.js');
 require('byteballcore/wallet.js'); // we don't need any of its functions but it listens for hub/* messages
 
 var appDataDir = desktopApp.getAppDataDir();
@@ -87,6 +88,11 @@ function replaceConsoleLog(){
 	console.info = console.log;
 }
 
+
+model.connect(function() {
+   console.log("connected to mongodb");
+});
+
 if (!conf.permanent_paring_secret)
 	throw Error('no conf.permanent_paring_secret');
 
@@ -124,6 +130,16 @@ eventBus.on('paired', function(from_address){
 		return handleNoWallet(from_address);
 
 	createNewSession(from_address, function(){
-		device.sendMessageToDevice(from_address, 'text', "Hi! Welcome to the Marketplace.");
+	    model.Account.find({device: from_address}, function(error, accounts) {
+	        if (accounts.length === 0) {
+		        device.sendMessageToDevice(from_address, 'text', "Hi! Welcome to the Marketplace.");
+	            var account = new model.Account({device: from_address});
+	            account.save(function(err, account) {
+                    if (err) return console.error(err);
+                });
+	        } else {
+    		    device.sendMessageToDevice(from_address, 'text', "Hi! Welcome back!");
+	        }
+	    });
 	});
 });
