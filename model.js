@@ -5,11 +5,24 @@ var mongoose = require("mongoose");
 
 var Schema = mongoose.Schema,
     ObjectId = Schema.ObjectId;
- 
-var AccountSchema = new Schema({
-    id      : ObjectId,
-    device  : String
+
+
+var ItemSchema = new Schema({
+    title       : String,
+    description : String
 });
+
+var ConversationSchema = new Schema({
+    action      : String,
+    context     : Schema.Types.Mixed
+});
+
+var AccountSchema = new Schema({
+    device      : String,
+    items       : [ ItemSchema ],
+    conversation: [ ConversationSchema ]
+});
+
 
 
 function connect(onDone) {
@@ -29,3 +42,5 @@ function connect(onDone) {
 
 exports.connect = connect;
 exports.Account = mongoose.model("Account", AccountSchema);
+exports.Conversation = mongoose.model("Conversation", ConversationSchema);
+exports.Item = mongoose.model("Item", ItemSchema);
