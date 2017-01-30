@@ -1,7 +1,7 @@
 /*jslint node: true */
 "use strict";
 
-var model = require('./model.js');
+var model = require('./lib/model.js');
 
 model.connect(function() {
    console.log("connected to mongodb");

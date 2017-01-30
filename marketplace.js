@@ -1,15 +1,18 @@
 /*jslint node: true */
 "use strict";
-var conf = require('byteballcore/conf.js');
-var device = require('byteballcore/device.js');
-var walletDefinedByKeys = require('byteballcore/wallet_defined_by_keys.js');
-var util = require('util');
-var crypto = require('crypto');
-var fs = require('fs');
-var db = require('byteballcore/db.js');
-var eventBus = require('byteballcore/event_bus.js');
-var desktopApp = require('byteballcore/desktop_app.js');
-var model = require('./model.js');
+const conf = require('byteballcore/conf.js');
+const device = require('byteballcore/device.js');
+const walletDefinedByKeys = require('byteballcore/wallet_defined_by_keys.js');
+const util = require('util');
+const crypto = require('crypto');
+const fs = require('fs');
+const db = require('byteballcore/db.js');
+const eventBus = require('byteballcore/event_bus.js');
+const desktopApp = require('byteballcore/desktop_app.js');
+const model = require('./lib/model.js');
+const chat = require('./lib/chat.js');
+
+require('./lib/seller.js')(chat, model);
 require('byteballcore/wallet.js'); // we don't need any of its functions but it listens for hub/* messages
 
 var appDataDir = desktopApp.getAppDataDir();
@@ -93,6 +96,13 @@ model.connect(function() {
    console.log("connected to mongodb");
 });
 
+process.on('SIGINT', function() {  
+	model.connection.close(function () { 
+		console.log('Mongoose default connection disconnected through app termination'); 
+		process.exit(0); 
+	}); 
+});
+
 if (!conf.permanent_paring_secret)
 	throw Error('no conf.permanent_paring_secret');
 
@@ -144,30 +154,45 @@ eventBus.on('paired', function(from_address){
 	});
 });
 
-var usage = `Use the commands below:
+const usage = `Use the commands below:
 [my items](command:my items) - lists the your items on sale
+[add](command:add) - add an item to sell. You can also add a short title eg: [add Some Really Cool Thing](command:add Some Really Cool Thing)
 [search](command:search) - search for items on sale
 `;
 
+chat.when("help", function(reply, message) {
+    reply(usage);
+});
+
+chat.when("nomatch", function(reply, message) {
+	reply("Not sure how to help with that. Try [help](command:help) for available commands.");
+});
+
 eventBus.on("text", function(from_address, text) {
-	if (!wallet)
-		return handleNoWallet(from_address);
+	if (!wallet) return handleNoWallet(from_address);
 	
 	model.Account.findOne({"device": from_address}, function(err, account) {
         if (err) {
+        	console.error("Failed to access account: " + err);
             device.sendMessageToDevice(from_address, "text", "Your account cannot be accessed currently, please try again later.");
-            return console.error("Failed to access account: " + err);
+            return;
+        }
+        
+        if (account == null) {
+        	console.error("Account not found for device: " + from_address);
+            device.sendMessageToDevice(from_address, "text", "Account does not exist for this device. Pair your device to create one");
+        	return;
         }
 
         console.log("[" + account._id +"] Text received: '" + text + "'"); 
 
-        var args = text.trim().split(" ");
-        var command = "";
-        
+        let args = text.trim().split(" ");
+	        
     	if (Array.isArray(account.conversation) && account.conversation.length > 0) {
     		let lastConversation = account.conversation.pop();
     		lastConversation.remove();
     		account.markModified("conversation");
+
     		account.save(function(err) {
     			if (err) {
     				console.error("[" + account._id +"] Failed to resume conversation: " + err);
@@ -175,87 +200,26 @@ eventBus.on("text", function(from_address, text) {
     				return;
     			}
     			
-    			command = lastConversation.action;
-    			// TODO this may leave command empty in case save fails and because it's async
+    			let message = { command: lastConversation.action, args: args, account: account};
+    			
+		    	chat.receive(message, function(response) {
+		    		device.sendMessageToDevice(from_address, "text", response);
+		    	});
     		});
-    		
-			command = lastConversation.action; // FIXME well not cool as it executes even if we didn't removed the last conversation
     	} else {
-	        command = args.shift().toLowerCase();
+	        let command = args.shift().toLowerCase();
 	        
 	        if (command == "my" && args.length > 0) {
 	            command += " " + args.shift().toLowerCase();
 	        }
+	        
+	        let message = { command: command, args: args, account: account};
+	        
+	        chat.receive(message, function(response) {
+				device.sendMessageToDevice(from_address, "text", response);
+	    	});
     	}
 
-
-        switch (command) {
-            case "help":
-                device.sendMessageToDevice(from_address, "text", usage);
-                break;
-            case "my items":
-                let items = account.items.map(function(item) {
-                    return " - " + item.title + " ([remove](command:remove " + item._id + "), [edit](command:edit " + item._id + "))";
-                });
-                
-                device.sendMessageToDevice(from_address, "text", items.join("\n") + "\n[add](command:add)");
-                break;
-            case "add":
-                if (args.length == 0) {
-                	account.conversation.push(new model.Conversation({action: "add"}));
-                	account.markModified("conversation");
-                	account.save(function(err) {
-                		if (err) {
-                			console.error("[" + account._id +"] Failed to save conversation: " + err);
-	                    	device.sendMessageToDevice(from_address, "text", "Something went wrong, please try again.")
-                			return;
-                		}
-                    	device.sendMessageToDevice(from_address, "text", "Tell me what you are selling in a couple of words or [cancel](command:cancel)")
-                	});
-                } else {
-                    let item = new model.Item({ title: args.join(" ") });
-                
-                    account.items.push(item);
-                    account.save(function(err) {
-                        if (err) {
-                            console.error("[" + account._id +"] Failed to create item: " + err); 
-                            device.sendMessageToDevice(from_address, "text", "Unfortunately, I was unable to store your item. Could you please retry?");
-                            return;
-                        }
-                        console.log("[" + account._id +"] Item saved: " + item);
-                        device.sendMessageToDevice(from_address, "text", "Great! You added " + item.title + ". You can provide a more detailed description or [stop](command:stop) here. Note, this item is not yet listed. So, how would you describe this item?");
-                        // TODO ask for description
-                    });
-                }
-                break;
-            case 'remove':
-                if (args.length > 0) {
-                    let item = account.items.id(args[0])
-                    
-                    if (item !== null) {
-                    	item.remove();
-              
-	                    account.save(function(err) {
-	                        if (err) {
-	                            console.error("[" + account._id +"] Failed to remove item: " + args[0]);
-	                            device.sendMessageToDevice(from_address, "text", "Unfortunately, I could not remove this item. Maybe try again later. To see your items try [my items](command:my items)");
-	                            return;
-	                        }
-	                        console.log("[" + account._id +"] Removed " + item);
-	                        device.sendMessageToDevice(from_address, "text", "Removed " + item.title);
-	                    });
-                    } else {
-                        device.sendMessageToDevice(from_address, "text", "That item does not exists, nothing to remove. To see your items try [my items](command:my items)");
-                    }
-                } else {
-                    // TOOD implement asking for a item to remove
-                    device.sendMessageToDevice("Nothing has been removed. Try [my items](command:my items)");
-                }
-                break;
-            default:
-                device.sendMessageToDevice(from_address, "text", "Not sure how to help with that. Try [help](command:help) for available commands.")
-        }
-    
     });
 
 });
