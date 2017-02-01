@@ -2,7 +2,7 @@
   "name": "byteball-marketplace",
   "version": "0.0.0",
   "description": "Marketplace for the Byteball network",
-  "main": "start.js",
+  "main": "marketplace.js",
   "repository": "",
   "author": "Peter Miklos <peter.miklos@gmail.com>",
   "dependencies": {

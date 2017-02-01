@@ -11,8 +11,8 @@ const eventBus = require('byteballcore/event_bus.js');
 const desktopApp = require('byteballcore/desktop_app.js');
 const model = require('./lib/model.js');
 const chat = require('./lib/chat.js');
-
-require('./lib/seller.js')(chat, model);
+const seller = require('./lib/seller.js');
+const buyer = require('./lib/buyer.js');
 require('byteballcore/wallet.js'); // we don't need any of its functions but it listens for hub/* messages
 
 var appDataDir = desktopApp.getAppDataDir();
@@ -157,8 +157,14 @@ eventBus.on('paired', function(from_address){
 const usage = `Use the commands below:
 [my items](command:my items) - lists the your items on sale
 [add](command:add) - add an item to sell. You can also add a short title eg: [add Some Really Cool Thing](command:add Some Really Cool Thing)
+[remove](command:remove) - removes your item on sale
 [search](command:search) - search for items on sale
 `;
+
+chat.when("my items", seller.myItems);
+chat.when("add", seller.add);
+chat.when("remove", seller.remove);
+chat.when("search", buyer.search);
 
 chat.when("help", function(reply, message) {
     reply(usage);
