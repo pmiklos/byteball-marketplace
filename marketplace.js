@@ -164,6 +164,7 @@ const usage = `Use the commands below:
 chat.when("my items", seller.myItems);
 chat.when("add", seller.add);
 chat.when("remove", seller.remove);
+chat.when("edit", seller.editItem);
 chat.when("search", buyer.search);
 chat.when("item", buyer.browseItem);
 chat.when("seller", buyer.browseSeller);
