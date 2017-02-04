@@ -205,8 +205,8 @@ eventBus.on("text", function(from_address, text) {
 		console.log("[" + account._id + "] Text received: '" + text + "'");
 
 		if (Array.isArray(account.conversation) && account.conversation.length > 0) {
-			let lastConversation = account.conversation.pop();
-			lastConversation.remove();
+			let nextStep = account.conversation.pop();
+			nextStep.remove();
 			account.markModified("conversation");
 
 			account.save(function(err) {
@@ -216,10 +216,21 @@ eventBus.on("text", function(from_address, text) {
 					return;
 				}
 
-				let message = {
-					text: lastConversation.action + " " + text.trim(),
-					account: account
-				};
+				let message;
+				if (nextStep.command) {
+					message = {
+						text: nextStep.command + " " + text.trim(),
+						account: account,
+						context: nextStep.context
+					}
+				}
+				else {
+					message = {
+						text: text.trim(),
+						account: account,
+						context: nextStep.context
+					}
+				}
 
 				chat.receive(message, function(response) {
 					device.sendMessageToDevice(from_address, "text", response);
