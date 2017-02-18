@@ -177,7 +177,10 @@ chat.when(/^set description (.*)$/, seller.setDescription);
 chat.when(/^set minimum price (.*)$/, seller.setMinimumPrice);
 chat.when(/^search (.*)$/, buyer.search);
 chat.when(/^item ([0-9a-f]+)$/, buyer.browseItem);
+chat.when(/^seller$/, buyer.browseSellerNoArgs);
 chat.when(/^seller ([0-9a-f]+)$/, buyer.browseSeller);
+chat.when(/^bid$/, buyer.bidNoArgs);
+chat.when(/^bid ([0-9]+)$/, buyer.bid);
 
 chat.when(/^help$/, function(reply, message) {
 	reply(usage);
