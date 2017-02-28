@@ -183,7 +183,7 @@ chat.when(/^seller$/, buyer.browseSellerNoArgs);
 chat.when(/^seller ([0-9a-f]+)$/, buyer.browseSeller);
 chat.when(/^bid$/, buyer.bidNoArgs);
 chat.when(/^bid ([0-9]+)$/, buyer.bid);
-chat.when(/^removeBid$/, buyer.removeBid);
+chat.when(/^remove bid$/, buyer.removeBid);
 chat.when(/^my bids$/, buyer.myBids);
 
 chat.when(/^help$/, function(reply, message) {
