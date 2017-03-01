@@ -10,7 +10,7 @@ const db = require('byteballcore/db.js');
 const eventBus = require('byteballcore/event_bus.js');
 const desktopApp = require('byteballcore/desktop_app.js');
 const model = require('./lib/model.js');
-const chat = require('./lib/chat.js');
+const Chat = require('./lib/chat.js');
 const seller = require('./lib/seller.js');
 const buyer = require('./lib/buyer.js');
 require('byteballcore/wallet.js'); // we don't need any of its functions but it listens for hub/* messages
@@ -165,6 +165,8 @@ const usage = `Use the commands below:
 [search](command:search) - search for items on sale
 `;
 
+const chat = new Chat([]);
+
 chat.when(/^my items$/, seller.myItems);
 chat.when(/^add$/, seller.add);
 chat.when(/^add (.*)$/, seller.add);
@@ -216,7 +218,7 @@ eventBus.on("text", function(from_address, text) {
 
 		if (Array.isArray(account.conversation) && account.conversation.length > 0) {
 			let nextStep = account.conversation.pop();
-			nextStep.remove();
+			nextStep.remove(); // TODO I think it is unnecessary
 			account.markModified("conversation");
 
 			account.save(function(err) {
