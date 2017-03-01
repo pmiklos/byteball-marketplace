@@ -178,6 +178,7 @@ chat.when(/^set description$/, seller.setDescriptionNoArgs);
 chat.when(/^set description (.*)$/, seller.setDescription);
 chat.when(/^set minimum price$/, seller.setMinimumPriceNoArgs);
 chat.when(/^set minimum price (.*)$/, seller.setMinimumPrice);
+chat.when(/^accept ([0-9a-f]+)$/, seller.accept);
 chat.when(/^search$/, buyer.searchNoArgs);
 chat.when(/^search (.*)$/, buyer.search);
 chat.when(/^item ([0-9a-f]+)$/, buyer.browseItem);
