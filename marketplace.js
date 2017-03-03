@@ -158,10 +158,10 @@ eventBus.on('paired', function(from_address) {
 	});
 });
 
-const usage = `Use the commands below:
-[my items](command:my items) - lists the your items on sale
+const usage = `Use the commands below to get started:
 [add](command:add) - add an item to sell. You can also add a short title eg: [add Some Really Cool Thing](command:add Some Really Cool Thing)
-[remove](command:remove) - removes your item on sale
+[my bids](command:my bids) - list the items you placed a bid for
+[my items](command:my items) - lists the your items on sale
 [search](command:search) - search for items on sale
 `;
 
