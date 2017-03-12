@@ -189,6 +189,8 @@ chat.when(/^bid ([0-9]+)$/, buyer.bid);
 chat.when(/^remove bid$/, buyer.removeBid);
 chat.when(/^my bids$/, buyer.myBids);
 chat.when(/^show contract$/, buyer.showContract);
+chat.when(/^set shipping address$/, buyer.setShippingAddressNoArgs);
+chat.when(/^set shipping address (.*)$/, buyer.setShippingAddress);
 
 chat.when(/^help$/, function(reply, message) {
 	reply(usage);
