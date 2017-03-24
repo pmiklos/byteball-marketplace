@@ -179,6 +179,11 @@ chat.when(/^set description (.*)$/, seller.setDescription);
 chat.when(/^set minimum price$/, seller.setMinimumPriceNoArgs);
 chat.when(/^set minimum price (.*)$/, seller.setMinimumPrice);
 chat.when(/^accept ([0-9a-f]+)$/, seller.accept);
+chat.when(/^request payment$/, seller.requestPaymentNoArgs);
+chat.when(/^request payment ([0-9A-Z]{32})$/, seller.requestPayment);
+chat.when(/^set tracking for ([0-9a-f]+)$/, (reply, message) => {
+	reply("TODO");
+})
 chat.when(/^search$/, buyer.searchNoArgs);
 chat.when(/^search (.*)$/, buyer.search);
 chat.when(/^item ([0-9a-f]+)$/, buyer.browseItem);
@@ -237,6 +242,7 @@ eventBus.on("text", function(from_address, text) {
 					message = {
 						text: nextStep.command + " " + text.trim(),
 						account: account,
+						wallet: wallet,
 						context: nextStep.context
 					};
 				}
@@ -244,6 +250,7 @@ eventBus.on("text", function(from_address, text) {
 					message = {
 						text: text.trim(),
 						account: account,
+						wallet: wallet,
 						context: nextStep.context
 					};
 				}
@@ -256,7 +263,8 @@ eventBus.on("text", function(from_address, text) {
 		else {
 			let message = {
 				text: text.trim(),
-				account: account
+				account: account,
+				wallet: wallet
 			};
 
 			chat.receive(message, function(response) {
