@@ -196,6 +196,7 @@ chat.when(/^my bids$/, buyer.myBids);
 chat.when(/^show contract$/, buyer.showContract);
 chat.when(/^set shipping address$/, buyer.setShippingAddressNoArgs);
 chat.when(/^set shipping address (.*)$/, buyer.setShippingAddress);
+chat.when(/^set refund address ([0-9A-Z]{32})/, buyer.setRefundAddress)
 
 chat.when(/^help$/, function(reply, message) {
 	reply(usage);
