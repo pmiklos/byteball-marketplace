@@ -8,7 +8,7 @@ chat.when(/say (.*)/, function(reply, message) {
     reply(message.args[0]);
 });
 
-chat.nomatch(function(reply, message) {
+chat.otherwise(function(reply, message) {
     reply("no match found");
 });
 
