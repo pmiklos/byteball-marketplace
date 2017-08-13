@@ -7,6 +7,7 @@
     "testnetify": "sed -ie \"s/version = '1.0'/version = '1.0t'/; s/alt = '1'/alt = '2'/\" node_modules/byteballcore/constants.js"
   },
   "main": "marketplace.js",
+  "license": "MIT",
   "repository": "",
   "dependencies": {
     "bitcore-lib": "^0.13.14",
