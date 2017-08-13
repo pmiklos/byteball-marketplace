@@ -1,22 +1,23 @@
+# Project setup
 
-     ,-----.,--.                  ,--. ,---.   ,--.,------.  ,------.
-    '  .--./|  | ,---. ,--.,--. ,-|  || o   \  |  ||  .-.  \ |  .---'
-    |  |    |  || .-. ||  ||  |' .-. |`..'  |  |  ||  |  \  :|  `--, 
-    '  '--'\|  |' '-' ''  ''  '\ `-' | .'  /   |  ||  '--'  /|  `---.
-     `-----'`--' `---'  `----'  `---'  `--'    `--'`-------' `------'
-    ----------------------------------------------------------------- 
+Before working with the project, the dependencies has to be fetched first with the following command:
 
+```
+npm install
+```
 
-Welcome to your Node.js project on Cloud9 IDE!
+This creates the `node_modules` directory with all the dependendent libraries. Updating the libraries with newer versions can be done with `npm update`.
 
-This chat example showcases how to use `socket.io` with a static `express` server.
+# Switching to testnet
 
-## Running the server
+Since the byteball testnet branches are not well maintained and also the headless wallet has no testnet version, we have to do a hack to turn main net to test net by changing the `version` and `alt` constants in byteball core `constants.js`. The obvious drawback of this approach is that every time the byteballcore package is updated with `npm update` the test constants are overwritten with the live ones. So every time an `npm update` or `npm install` is run the following command has to be run as well:
 
-1) Open `server.js` and start the app by clicking on the "Run" button in the top menu.
+```
+npm run testnetify
+```
 
-2) Alternatively you can launch the app from the Terminal:
+# Running the exchange bot
 
-    $ node server.js
-
-Once the server is running, open the project in the shape of 'https://projectname-username.c9users.io/'. As you enter your name, watch the Users list (on the left) update. Once you press Enter or Send, the message is shared with all connected clients.
+```
+node marketplace.js
+```
