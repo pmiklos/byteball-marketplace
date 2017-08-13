@@ -99,7 +99,7 @@ chat.when(/^help$/, function(reply, message) {
 	reply(usage);
 });
 
-chat.nomatch(function(reply, message) {
+chat.otherwise(function(reply, message) {
 	reply("Not sure how to help with that. Try [help](command:help) for available commands.");
 });
 
