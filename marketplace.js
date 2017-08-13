@@ -9,52 +9,6 @@ const buyer = require('./lib/buyer.js');
 const headlessWallet = require('headless-byteball');
 require('byteballcore/wallet.js');
 
-var wallet;
-
-function handleNoWallet(from_address) {
-	device.sendMessageToDevice(from_address, 'text', "The shop is not set up yet, try again later");
-}
-
-model.connect(function() {
-	console.log("connected to mongodb");
-});
-
-process.on('SIGINT', function() {
-	model.connection.close(function() {
-		console.log('Mongoose default connection disconnected through app termination');
-		process.exit(0);
-	});
-});
-
-eventBus.once('headless_wallet_ready', function() {
-	headlessWallet.setupChatEventHandlers();
-	headlessWallet.readSingleWallet(function(_wallet) {
-		wallet = _wallet;
-	});
-});
-
-eventBus.on('paired', function(from_address) {
-	if (!wallet)
-		return handleNoWallet(from_address);
-
-	model.Account.find({
-		device: from_address
-	}, function(error, accounts) {
-		if (accounts.length == 0) {
-			device.sendMessageToDevice(from_address, 'text', "Hi! Welcome to the Marketplace. Type [help](command:help) for available commands.");
-			var account = new model.Account({
-				device: from_address
-			});
-			account.save(function(err, account) {
-				if (err) return console.error(err);
-			});
-		}
-		else {
-			device.sendMessageToDevice(from_address, 'text', "Hi! Welcome back! Type [help](command:help) for available commands.");
-		}
-	});
-});
-
 const usage = `Use the commands below to get started:
 [add](command:add) - add an item to sell. You can also add a short title eg: [add Some Really Cool Thing](command:add Some Really Cool Thing)
 [my bids](command:my bids) - list the items you placed a bid for
@@ -102,6 +56,54 @@ chat.when(/^help$/, function(reply, message) {
 chat.otherwise(function(reply, message) {
 	reply("Not sure how to help with that. Try [help](command:help) for available commands.");
 });
+
+
+function handleNoWallet(from_address) {
+	device.sendMessageToDevice(from_address, 'text', "The shop is not set up yet, try again later");
+}
+
+model.connect(function() {
+	console.log("connected to mongodb");
+});
+
+process.on('SIGINT', function() {
+	model.connection.close(function() {
+		console.log('Mongoose default connection disconnected through app termination');
+		process.exit(0);
+	});
+});
+
+var wallet;
+
+eventBus.once('headless_wallet_ready', function() {
+	headlessWallet.setupChatEventHandlers();
+	headlessWallet.readSingleWallet(function(_wallet) {
+		wallet = _wallet;
+	});
+});
+
+eventBus.on('paired', function(from_address) {
+	if (!wallet)
+		return handleNoWallet(from_address);
+
+	model.Account.find({
+		device: from_address
+	}, function(error, accounts) {
+		if (accounts.length == 0) {
+			device.sendMessageToDevice(from_address, 'text', "Hi! Welcome to the Marketplace. Type [help](command:help) for available commands.");
+			var account = new model.Account({
+				device: from_address
+			});
+			account.save(function(err, account) {
+				if (err) return console.error(err);
+			});
+		}
+		else {
+			device.sendMessageToDevice(from_address, 'text', "Hi! Welcome back! Type [help](command:help) for available commands.");
+		}
+	});
+});
+
 
 eventBus.on("text", function(from_address, text) {
 	if (!wallet) return handleNoWallet(from_address);
