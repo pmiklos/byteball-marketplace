@@ -1,5 +1,11 @@
 # Project setup
 
+The marketplace uses mongodb to store auction data. Install `mongodb` and start it with 
+
+```
+bin/mongod
+```
+
 Before working with the project, the dependencies has to be fetched first with the following command:
 
 ```
