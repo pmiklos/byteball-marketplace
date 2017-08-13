@@ -2,12 +2,17 @@
   "name": "byteball-marketplace",
   "version": "0.0.0",
   "description": "Marketplace for the Byteball network",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "testnetify": "sed -ie \"s/version = '1.0'/version = '1.0t'/; s/alt = '1'/alt = '2'/\" node_modules/byteballcore/constants.js"
+  },
   "main": "marketplace.js",
   "repository": "",
-  "author": "Peter Miklos <peter.miklos@gmail.com>",
   "dependencies": {
     "bitcore-lib": "^0.13.14",
-    "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
-    "mongoose": "4.7.8"
+    "bitcore-mnemonic": "~1.0.0",
+    "byteballcore": "^0.2.52",
+    "headless-byteball": "git+https://github.com/byteball/headless-byteball.git",
+    "mongoose": "~4.7.8"
   }
 }
