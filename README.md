@@ -22,7 +22,7 @@ Since the byteball testnet branches are not well maintained and also the headles
 npm run testnetify
 ```
 
-# Running the exchange bot
+# Running the marketplace
 
 ```
 node marketplace.js
